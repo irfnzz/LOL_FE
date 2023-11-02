@@ -9,9 +9,9 @@ export default function Toilets() {
   ]
   return (
     <div className="flex max-w-[100vw] flex-col items-start gap-2">
-      <div class="grid w-full grid-cols-1 gap-8  md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid w-full grid-cols-1 gap-8  md:grid-cols-2 lg:grid-cols-4">
         {dummy.map((index, key) => {
-          return <Cubicle item={index} key={key} />
+          return <Cubicle item={index} key={`${index}-cubicle`} />
         })}
       </div>
     </div>
