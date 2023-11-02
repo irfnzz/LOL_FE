@@ -39,7 +39,7 @@ export default function IndexPage() {
       <div class="grid w-full grid-cols-1 gap-8">
         {dummy.map((item, key) => {
           return (
-            <Link href={`/floors/${item.id}`}>
+            <Link key={key} href={`/floors/${item.id}`}>
               <List item={item} />
             </Link>
           )
