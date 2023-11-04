@@ -1,8 +1,23 @@
-import { Building } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-export function List({ item }) {
+interface ItemType {
+  id: number
+  number: number
+}
+interface ListProps {
+  item: ItemType // Replace ItemType with the actual type of item
+  key: string
+  onClick: () => void // Add this line
+}
+export function List({ item, onClick }: ListProps) {
   return (
-    <div className="relative flex grow flex-row items-center rounded-[10px] border-[1px] border-gray-200 bg-slate-100 bg-clip-border dark:bg-white">
+    <div
+      onClick={onClick}
+      className={cn(
+        "relative flex grow cursor-pointer flex-row items-center rounded-[10px] border-[1px] border-gray-200 bg-slate-100 bg-clip-border dark:bg-white",
+        item.number === 4 && "bg-red-200 dark:bg-red-200"
+      )}
+    >
       <div className="ml-[18px] flex h-[90px] w-auto flex-row items-center">
         <div className="rounded-full bg-black p-3 text-white">{item.id}</div>
       </div>
