@@ -52,7 +52,7 @@ export default function IndexPage() {
   useEffect(() => {
     let connectionTimeout: NodeJS.Timeout
     let connectionAttempts = 0 // Initialize connectionAttempts
-    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/asd`)
+    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`)
 
     // WebSocket event listeners
     socket.onopen = () => {
