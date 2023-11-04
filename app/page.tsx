@@ -5,10 +5,6 @@ import { use, useEffect, useState } from "react"
 import { Cubicle } from "@/components/ui/cubicle"
 import { List } from "@/components/ui/list"
 
-interface ApiData {
-  status: boolean
-}
-
 const getData = async () => {
   const data = await fetch(
     `${process.env.NEXT_PUBLIC_API_ENDPOINT}/sample/status`
@@ -22,7 +18,6 @@ export default function IndexPage() {
   const [connectionFailed, setConnectionFailed] = useState(false)
   const [wsData, setwsData] = useState(["status", false])
   const [activeFloor, setActiveFloor] = useState(false)
-  const [apiData, setApiData] = useState<ApiData | null>(null)
   const [dummy, setDummy] = useState([
     { name: "Floor 23", id: 23, number: 4 },
     { name: "Floor 24", id: 24, number: 4 },
@@ -38,11 +33,9 @@ export default function IndexPage() {
 
       // If found, update the number
       if (index !== -1) {
-        const newDummy = [...prevDummy]
+        let newDummy = [...prevDummy]
 
-        if (connectionFailed) {
-          newDummy[index].number = apiData?.status ? 3 : 4
-        } else if (wsData[1]) {
+        if (wsData[1]) {
           newDummy[index].number = 3
         } else {
           newDummy[index].number = 4
@@ -54,12 +47,12 @@ export default function IndexPage() {
       // If not found, return the previous state
       return prevDummy
     })
-  }, [wsData, connectionFailed, apiData])
+  }, [wsData, connectionFailed])
 
   useEffect(() => {
     let connectionTimeout: NodeJS.Timeout
     let connectionAttempts = 0 // Initialize connectionAttempts
-    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`)
+    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/asd`)
 
     // WebSocket event listeners
     socket.onopen = () => {
@@ -95,6 +88,7 @@ export default function IndexPage() {
 
     socket.onclose = () => {
       console.log("WebSocket connection closed")
+      setConnectionFailed(true) // Set connectionFailed to true
     }
 
     // Clean up the WebSocket connection when the component unmounts
@@ -104,10 +98,13 @@ export default function IndexPage() {
     }
   }, []) // Empty dependency array ensures this effect runs once on mount
 
+  //If websocket API fail we call the rest API
   useEffect(() => {
     if (connectionFailed) {
       const getApiData = use(getData())
-      setApiData(getApiData)
+      const index = dummy.findIndex((item) => item.id === 23)
+
+      dummy[index].number = getApiData?.status ? 3 : 4
     }
   }, [connectionFailed])
 
