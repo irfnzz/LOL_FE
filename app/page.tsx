@@ -88,7 +88,6 @@ export default function IndexPage() {
 
     socket.onclose = () => {
       console.log("WebSocket connection closed")
-      setConnectionFailed(true) // Set connectionFailed to true
     }
 
     // Clean up the WebSocket connection when the component unmounts
