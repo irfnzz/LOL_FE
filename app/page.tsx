@@ -6,12 +6,17 @@ import { Cubicle } from "@/components/ui/cubicle"
 import { List } from "@/components/ui/list"
 
 const getData = async () => {
-  const data = await fetch(
-    `${process.env.NEXT_PUBLIC_API_ENDPOINT}/sample/status`
-  )
-  const status = await data.json()
+  try {
+    const data = await fetch(
+      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/sample/status`
+    )
+    const status = await data.json()
 
-  return status
+    return status
+  } catch (error) {
+    console.error("Failed to fetch data:", error)
+    return null
+  }
 }
 
 export default function IndexPage() {
@@ -36,9 +41,9 @@ export default function IndexPage() {
         let newDummy = [...prevDummy]
 
         if (wsData[1]) {
-          newDummy[index].number = 1
-        } else {
           newDummy[index].number = 0
+        } else {
+          newDummy[index].number = 1
         }
 
         return newDummy
@@ -50,14 +55,23 @@ export default function IndexPage() {
   }, [wsData, connectionFailed])
 
   useEffect(() => {
-    let connectionTimeout: NodeJS.Timeout
+    let connectionTimeout: ReturnType<typeof setTimeout>
     let connectionAttempts = 0 // Initialize connectionAttempts
     const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`)
+
+    const handleTimeout = (message: string) => {
+      console.log(message)
+      setConnectionFailed(true) // Set connectionFailed to true
+    }
 
     // WebSocket event listeners
     socket.onopen = () => {
       console.log("WebSocket connection opened")
       connectionAttempts = 0 // Reset connectionAttempts when connection is successful
+
+      connectionTimeout = setTimeout(() => {
+        !wsData && handleTimeout("No data received after 10 seconds")
+      }, 10000) // 10 seconds
     }
 
     socket.onmessage = (event) => {
@@ -65,12 +79,10 @@ export default function IndexPage() {
       setwsData(JSON.parse(event.data))
 
       // Set a timeout to call the API if no data is received within 10 seconds
-      connectionTimeout = setTimeout(() => {
-        if (!event?.data) {
-          console.log("No data received after 10 seconds")
-          setConnectionFailed(true) // Set connectionFailed to true
-        }
-      }, 10000) // 10 seconds
+      connectionTimeout = setTimeout(
+        () => handleTimeout("No data received after 10 seconds"),
+        10000
+      ) // 10 seconds
     }
 
     socket.onerror = (error) => {
@@ -79,10 +91,10 @@ export default function IndexPage() {
 
       if (connectionAttempts >= 2) {
         // Only call API after the second failed attempt
-        connectionTimeout = setTimeout(() => {
-          console.log("WebSocket connection failed")
-          setConnectionFailed(true) // Set connectionFailed to true
-        }, 10000) // 10 seconds
+        connectionTimeout = setTimeout(
+          () => handleTimeout("WebSocket connection failed"),
+          10000
+        ) // 10 seconds
       }
     }
 
@@ -95,7 +107,7 @@ export default function IndexPage() {
       socket.close()
       clearTimeout(connectionTimeout)
     }
-  }, []) // Empty dependency array ensures this effect runs once on mount
+  }, [wsData]) // Empty dependency array ensures this effect runs once on mount
 
   //If websocket API fail we call the rest API
   useEffect(() => {
@@ -103,7 +115,7 @@ export default function IndexPage() {
       const getApiData = use(getData())
       const index = dummy.findIndex((item) => item.id === 23)
 
-      dummy[index].number = getApiData?.status ? 1 : 0
+      dummy[index].number = getApiData?.status ? 0 : 1
     }
   }, [connectionFailed])
 
