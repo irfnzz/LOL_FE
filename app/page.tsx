@@ -91,7 +91,7 @@ export default function IndexPage() {
       socket.close()
       clearTimeout(connectionTimeout)
     }
-  }, [wsData]) // Empty dependency array ensures this effect runs once on mount
+  }, []) // Empty dependency array ensures this effect runs once on mount
 
   //If websocket API fail we call the rest API
   useEffect(() => {
