@@ -6,17 +6,12 @@ import { Cubicle } from "@/components/ui/cubicle"
 import { List } from "@/components/ui/list"
 
 const getData = async () => {
-  try {
-    const data = await fetch(
-      `${process.env.NEXT_PUBLIC_API_ENDPOINT}/sample/status`
-    )
-    const status = await data.json()
+  const data = await fetch(
+    `${process.env.NEXT_PUBLIC_API_ENDPOINT}/sample/status`
+  )
+  const status = await data.json()
 
-    return status
-  } catch (error) {
-    console.error("Failed to fetch data:", error)
-    return null
-  }
+  return status
 }
 
 export default function IndexPage() {
@@ -55,47 +50,36 @@ export default function IndexPage() {
   }, [wsData, connectionFailed])
 
   useEffect(() => {
-    let connectionTimeout: ReturnType<typeof setTimeout>
+    let connectionTimeout: NodeJS.Timeout // Initialize connectionTimeout
     let connectionAttempts = 0 // Initialize connectionAttempts
     const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`)
-
-    const handleTimeout = (message: string) => {
-      console.log(message)
-      setConnectionFailed(true) // Set connectionFailed to true
-    }
 
     // WebSocket event listeners
     socket.onopen = () => {
       console.log("WebSocket connection opened")
       connectionAttempts = 0 // Reset connectionAttempts when connection is successful
-
-      connectionTimeout = setTimeout(() => {
-        !wsData && handleTimeout("No data received after 10 seconds")
-      }, 10000) // 10 seconds
     }
 
     socket.onmessage = (event) => {
       console.log("Received message:", event.data)
       setwsData(JSON.parse(event.data))
 
-      // Set a timeout to call the API if no data is received within 10 seconds
-      connectionTimeout = setTimeout(
-        () => handleTimeout("No data received after 10 seconds"),
-        10000
-      ) // 10 seconds
+      connectionTimeout = setTimeout(() => {
+        if (!event?.data) {
+          console.log("No data received after 10 seconds")
+          setConnectionFailed(true) // Set connectionFailed to true
+        }
+      }, 10000) // 10 seconds
     }
 
     socket.onerror = (error) => {
       console.error(`WebSocket error: ${error}`)
       connectionAttempts++ // Increment connectionAttempts
 
-      if (connectionAttempts >= 2) {
-        // Only call API after the second failed attempt
-        connectionTimeout = setTimeout(
-          () => handleTimeout("WebSocket connection failed"),
-          10000
-        ) // 10 seconds
-      }
+      connectionTimeout = setTimeout(() => {
+        console.log("WebSocket connection failed")
+        setConnectionFailed(true) // Set connectionFailed to true
+      }, 10000) // 10 seconds
     }
 
     socket.onclose = () => {
