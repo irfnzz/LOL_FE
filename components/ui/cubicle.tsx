@@ -20,7 +20,7 @@ export function Cubicle({ data }: Data) {
         <div
           className={cn(
             "flex h-72 items-center justify-center rounded-xl border text-card-foreground shadow",
-            data[0].number === 4 ? "bg-red-500" : "bg-green-500"
+            data[0].number === 0 ? "bg-red-500" : "bg-green-500"
           )}
         >
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white font-bold dark:text-black">
