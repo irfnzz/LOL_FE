@@ -19,11 +19,11 @@ export default function IndexPage() {
   const [wsData, setwsData] = useState(["status", false])
   const [activeFloor, setActiveFloor] = useState(false)
   const [dummy, setDummy] = useState([
-    { name: "Floor 23", id: 23, number: 4 },
-    { name: "Floor 24", id: 24, number: 4 },
-    { name: "Floor 25", id: 25, number: 4 },
-    { name: "Floor 26", id: 26, number: 4 },
-    { name: "Floor 27", id: 27, number: 4 },
+    { name: "Floor 23", id: 23, number: 0 },
+    { name: "Floor 24", id: 24, number: 0 },
+    { name: "Floor 25", id: 25, number: 0 },
+    { name: "Floor 26", id: 26, number: 0 },
+    { name: "Floor 27", id: 27, number: 0 },
   ])
 
   useEffect(() => {
@@ -36,9 +36,9 @@ export default function IndexPage() {
         let newDummy = [...prevDummy]
 
         if (wsData[1]) {
-          newDummy[index].number = 3
+          newDummy[index].number = 1
         } else {
-          newDummy[index].number = 4
+          newDummy[index].number = 0
         }
 
         return newDummy
@@ -103,7 +103,7 @@ export default function IndexPage() {
       const getApiData = use(getData())
       const index = dummy.findIndex((item) => item.id === 23)
 
-      dummy[index].number = getApiData?.status ? 3 : 4
+      dummy[index].number = getApiData?.status ? 1 : 0
     }
   }, [connectionFailed])
 

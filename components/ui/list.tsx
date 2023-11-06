@@ -12,10 +12,10 @@ interface ListProps {
 export function List({ item, onClick }: ListProps) {
   return (
     <div
-      onClick={onClick}
+      onClick={item.number !== 0 ? onClick : undefined}
       className={cn(
         "relative flex grow cursor-pointer flex-row items-center rounded-[10px] border-[1px] border-gray-200 bg-slate-100 bg-clip-border dark:bg-white",
-        item.number === 4 && "bg-red-200 dark:bg-red-200"
+        item.number === 0 && "cursor-not-allowed bg-red-200 dark:bg-red-200"
       )}
     >
       <div className="ml-[18px] flex h-[90px] w-auto flex-row items-center">
